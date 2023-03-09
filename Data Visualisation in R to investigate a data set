@@ -1,0 +1,56 @@
+#I would like to see whether there is a relationship of mammals in the order of Chiroptera and their adult body size#
+#Since I am comparing one discrete variable and one continous variable, a boxplot seems like a sensible way to represent the data.#
+#First, to get the packages I need I load tidyverse.
+
+library(tidyverse)
+
+#Then, I find the saved data set in my computer and read it into R#
+file.choose()
+mammals1 <- read_csv("C:\\Users\\1miko\\OneDrive\\Documents\\uni work\\Year 2\\Computer Classes\\mammals1.csv")
+
+#I want to have a look at the data set.
+mammals1
+
+#Initially, I was undecided over which variable to look at so I looked at different variables corresponding to the lifestyles of organisms.#
+count(mammals1, ActivityCycle)
+count(mammals1, Terrestriality)
+count(mammals1, TrophicLevel)
+
+#After looking through the data set, I concluded that I wanted to look at Chiroptera.'
+#I created a tibble with only Chiroptera#
+bats <- filter(mammals1, Order == "Chiroptera")
+
+#After looking through the bats tibble, I noticed there was more variation in trophic level than I originally expected.#
+#There seemed to be a considerable distribution across the Order across carnivory, herbivory and omnivory.#
+
+bats
+count(bats, TrophicLevel)
+
+#I formed a hypothesis that body size would correlate with trophic level, since larger bats may make better predators so carnivores may tend to be larger.#
+
+#I plotted a boxplot, with points visible in order to show the data, using geom_point(). Different tropjoc levels are coloured to ease interpretation.#
+#I used position = position_jitter() to make the spread of points within groups easier to see#
+#Carnivores seemed to have a mean lower adult body mass and herbivores a higher mean mass. 
+#I used the log of adut body mass since I first just used Adult Body Mass, and large variation in body mass made the graph unreadable.#
+#Using the log of body mass helped to standardise the data and make the graph easy to interpret#
+ggplot(data = bats,
+       aes(x = TrophicLevel, 
+           y = log(AdultBodyMass_g),
+           colour = TrophicLevel))+
+geom_boxplot()+
+  geom_point(position=position_jitter())+
+  labs(title = "log of Adult Body Mass (g) in Chiroptera as a function of Trophic Level"
+      , x= "Trophic Level", y= "Log10 of Adult Body Mass (g)"
+      )+
+theme_light()
+
+# I added labels, as well as a key using labs and colour = TrophicLevel
+#I used the 'light' theme, since after trying different ones, this one seemed to look the clearest and clash the least with the data points.#
+#Biological interpretation:#
+#Contrary to my original predicition, carnivorous members of Chritoptera had a lower mean body mass than herbivores or omnivores. 
+#I think I may have not taken the biology and ecology of Chiroptera into account when making my preditcion.
+#Carnivorous bats tend to hunt on insects during flight. Therefore, speed may determine how successful a predator is.
+#In this case, a lower body mass may lend itself to faster flying and more effective flying.
+#Further research that aims to explain the pattern between Trophic Level and body mass should, therefore, aim to determine whether species with lower body mass are, indeedn faster fliers and better hunters.#
+
+
