@@ -1,0 +1,104 @@
+library(tidyverse)
+
+#code to simulate constant population growth of a population
+#that has 10 individuals at time t = 1
+#equation N(t+1) = lambdaN(t)
+
+res <- rep(NA,20)
+#Create a vector 'res' with 20 NA empty slots
+#this sets up a vector of NAs where we're going to store our results
+res
+#this shows us the vector
+res[1] <- 10
+#this tells R to put the number 10 in the first element of the results vector
+res
+lambda <- 1.1
+#tells R lambda is 1.1
+for (i in 2:20) res[i] <- lambda*res[i-1]
+#for each slot in vector (i) 2nd to last, do this function
+#'for i in 2:20' tells R to do the same thing multiple times. But each time to advance the variable of i by 1
+#'res#i <- lambda*resi-1 says to calculate the population size at time t = i. which we will put in resi multiply the population size at time t = i − 1 which is
+#stored in res[i-1]) by lambda where we have already told R that λ = 1.1.
+
+res
+#time to plot this data
+
+plot(1:20 ,res, xlab='Time',ylab='Population size', type='l')
+?plot
+
+
+
+#Stochastic Population Growth
+#BUT lambda changes over time. 
+#To show lambda changes with t we replace lambda in equation 1 with lambda(t) such that
+# N(t+1) = lambda(t)N(t)
+#rnorm command takes numbers from a normal distribution
+#dnorm calculates the probability density function for an value of x given a mean and variance of the distribution
+
+dnorm(x=1,mean=2,sd=sqrt(1))
+#shows probability density of getting 1 from a normal distribution with above specifications 
+rnorm(10,mean=0,sd=3)
+#takes 10 values from a normal distribution with above mean and sd
+#lets make lambda(t) a string of random numbers
+res<- rep(NA,50)
+res[1] <- 100
+lambda <- rnorm(49,1.1,0.4)
+for (i in 2:50) res[i] <- lambda[i-1]*res[i-1]
+plot(1:50,res,type='l', xlab='Time', ylab='Population Size')
+
+                                        
+#Now, I generate 10 different times series by drawing numbers from the same normal distribution
+
+res <- array(NA,c(25,10))
+res
+res[1,] <- 100
+lambda <- matrix(rnorm(24*10,1.1,0.4),ncol=10)
+lambda <- ifelse(lambda<0,0,lambda)
+for (j in 1:10) for (i in 2:25) res [i,j] <- lambda[i-1,j]*res[i-1,j]
+plot(1:25,res[,1],type='l',xlab='Time', ylab='Population Size', ylim=c(0,max(res)))
+for (j in 2:10) lines(1:25,res[,j],col=j)
+
+
+#Now, I can estimate the long-run stochastic growth rate of each simulation 
+
+res.t2 <- res[-1,]
+res.t1 <- res[-25,]
+log.lambdas <- log(res.t2/res.t1)
+long.run.growth.rate <- apply(log.lambdas,2,mean)
+long.run.growth.rate
+
+#Density Dependent Population Growth
+#this code means lambda varies with population size
+res <- rep(NA,50)
+res[1] <- 20
+lambda <- function(N) 2-0.01*N
+for (i in 2:50){
+  lambda.t <- lambda(res[i-1])
+  res[i] <- lambda.t*res[i-1]
+}
+
+
+plot(1:50,res,type='l',xlab='Time',ylab='Population size')
+
+#Stochastic Density-Dependent Models
+
+
+res <- rep(NA,200)
+res[1] <- 20
+lambda <- function(N) 2-0.01*N+rnorm(1,0,0.2)
+for (i in 2:200){
+  lambda.t <- lambda(res[i-1])
+  res[i] <- lambda.t*res[i-1]
+}
+plot(1:200,res,type='l',xlab='Time',ylab='Population size')
+
+res <- rep(NA,200)
+res[1] <- 20
+lambda <- function(N) 2+0.01*N-0.00025*N*N+rnorm(1,0,0.01)
+for (i in 2:200){
+  lambda.t <- lambda(res[i-1])
+  res[i] <- lambda.t*res[i-1]
+  res[i] <- ifelse(res[i]<0,0,res[i])
+}
+plot(1:200,res,type='l',xlab='Time',ylab='Population size')
+
